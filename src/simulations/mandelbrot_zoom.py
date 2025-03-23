@@ -72,10 +72,10 @@ def create_color_palette():
     
     return LinearSegmentedColormap.from_list('mandelbrot', colors, N=512)
 
-def create_mandelbrot_animation(output_dir="output"):
+def create_mandelbrot_zoom_animation(output_dir="output"):
     """
-    Creates a visually stunning animation of zooming into the Mandelbrot set,
-    optimized for TikTok with the portrait aspect ratio.
+    Creates a mesmerizing Mandelbrot Set zoom animation,
+    optimized for TikTok's portrait format.
     
     Parameters:
     -----------
@@ -244,7 +244,7 @@ def create_mandelbrot_animation(output_dir="output"):
     print(f"File size: {file_size:.2f} MB")
 
 def main():
-    create_mandelbrot_animation()
+    create_mandelbrot_zoom_animation()
 
 if __name__ == "__main__":
     main() 

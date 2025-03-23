@@ -8,11 +8,10 @@ import os
 # Set backend to TkAgg for better compatibility
 matplotlib.use('TkAgg')
 
-def create_lorenz_animation(output_dir="output"):
+def create_lorenz_attractor_animation(output_dir="output"):
     """
-    Creates a visually striking animation of the Lorenz attractor
-    optimized for TikTok (30 seconds long). This version fixes the
-    color array issue and is more robust.
+    Create a mesmerizing animation of the Lorenz attractor,
+    a chaotic system demonstrating the butterfly effect.
     
     Parameters:
     -----------
@@ -267,7 +266,7 @@ def create_lorenz_animation(output_dir="output"):
     print(f"File size: {file_size:.2f} KB")
 
 def main():
-    create_lorenz_animation()
+    create_lorenz_attractor_animation()
 
 if __name__ == "__main__":
     main() 
