@@ -12,18 +12,23 @@ def mandelbrot_numpy(h, w, max_iters, center_x, center_y, zoom_width):
     
     This is a faster implementation using Numba's just-in-time compilation.
     """
+    # Calculate the height based on the width and aspect ratio
     zoom_height = zoom_width * h / w
     
-    y_min = -center_y 
-    y_max = zoom_height - center_y
-    x_min = -center_x
-    x_max = zoom_width - center_x
+    # Calculate the boundaries of the view
+    x_min = center_x - zoom_width/2
+    x_max = center_x + zoom_width/2
+    y_min = center_y - zoom_height/2
+    y_max = center_y + zoom_height/2
     
+    # Create coordinate arrays
     x = np.linspace(x_min, x_max, w)
     y = np.linspace(y_min, y_max, h)
     
+    # Result array - initialized to max_iters (will be black)
     result = np.zeros((h, w), dtype=np.float32)
     
+    # For each pixel
     for i in range(h):
         for j in range(w):
             c = complex(x[j], y[i])
@@ -40,27 +45,32 @@ def mandelbrot_numpy(h, w, max_iters, center_x, center_y, zoom_width):
 def create_color_palette():
     """Create a vibrant color palette suited for the Mandelbrot visualization."""
     colors = [
-        (0, 0, 0),       # Black
-        (0.1, 0, 0.2),   # Near-black purple for subtle variation in dark areas
-        (0, 0, 0.5),     # Dark blue
-        (0, 0, 1),       # Blue
+        (0, 0, 0.2),     # Start with dark blue instead of black
+        (0.1, 0.1, 0.3),  # Dark purple
+        (0.2, 0, 0.5),   # Purple
+        (0.3, 0, 0.8),   # Deep purple
+        (0, 0.2, 1),     # Blue
         (0, 0.5, 1),     # Sky blue
-        (0, 1, 1),       # Cyan
-        (0, 1, 0.5),     # Teal
+        (0, 0.8, 1),     # Light blue
+        (0, 1, 0.8),     # Teal
+        (0, 1, 0.5),     # Sea green
         (0, 1, 0),       # Green
         (0.5, 1, 0),     # Lime
+        (0.8, 1, 0),     # Yellow-green
         (1, 1, 0),       # Yellow
+        (1, 0.8, 0),     # Gold
         (1, 0.5, 0),     # Orange
+        (1, 0.2, 0),     # Red-orange
         (1, 0, 0),       # Red
         (1, 0, 0.5),     # Pink
-        (1, 0, 1),       # Magenta
-        (0.5, 0, 1),     # Purple
-        (0.2, 0, 0.5),   # Dark purple
-        (0, 0, 0.3),     # Near-black blue (almost black but not quite)
-        (0, 0, 0),       # Black (cycle back)
+        (1, 0, 0.8),     # Magenta
+        (0.8, 0, 1),     # Purple
+        (0.5, 0, 0.8),   # Violet
+        (0.3, 0, 0.5),   # Dark purple
+        (0, 0, 0.2)      # Back to dark blue (cycle)
     ]
     
-    return LinearSegmentedColormap.from_list('mandelbrot', colors, N=2048)
+    return LinearSegmentedColormap.from_list('mandelbrot', colors, N=512)
 
 def create_mandelbrot_animation(output_dir="output"):
     """
@@ -74,55 +84,59 @@ def create_mandelbrot_animation(output_dir="output"):
     """
     print("Creating Mandelbrot Zoom animation...")
     
-    # Animation parameters - reduced for faster processing
+    # Animation parameters
     fps = 30
-    duration = 20  # reduced from 30 seconds to 20 for faster generation
+    duration = 15  # reduced for faster generation
     frames = fps * duration
     
     # Mandelbrot calculation parameters - reduced resolution for faster processing
-    width, height = 360, 640  # reduced from 540x960 for faster processing
-    max_iterations = 100      # increased from 80 for better detail
+    width, height = 360, 640  # reduced resolution for faster processing
+    max_iterations = 150  # increased for better detail
     
     # Interesting zoom target coordinates
     # This is a beautiful spiral pattern in the Mandelbrot set
-    target_x = -0.743643887037158704752191506114774
-    target_y = 0.131825904205311970493132056385139
+    target_x = -0.7435669
+    target_y = 0.1314023
     
-    # Zoom parameters - made less extreme for faster processing
-    start_width = 3.0
-    end_width = 0.00001  # reduced from 0.000000001 for faster processing
+    # Zoom parameters
+    start_zoom = 3.5  # start further out to see the whole set
+    end_zoom = 0.0001  # don't zoom in too far
     
-    # Calculate zoom factor once, outside the loop
-    zoom_factor = (end_width / start_width) ** (1 / frames)
-    
-    # Precalculate zoom values to avoid repeated calculations
+    # Calculate zoom sequence
     zoom_values = []
-    current_width = start_width
-    for frame in range(frames):
-        zoom_ratio = start_width / current_width
-        zoom_values.append((current_width, zoom_ratio))
-        current_width *= zoom_factor
+    zoom_widths = np.geomspace(start_zoom, end_zoom, frames)
     
-    # Create figure and add a subplot with no frame
-    plt.rcParams['figure.dpi'] = 100  # Explicit DPI setting
-    fig = plt.figure(figsize=(3.6, 6.4), facecolor='black')  # Reduced figsize for faster processing
-    ax = fig.add_subplot(111, frameon=False)
+    for frame in range(frames):
+        zoom_width = zoom_widths[frame]
+        zoom_ratio = start_zoom / zoom_width
+        zoom_values.append((zoom_width, zoom_ratio))
+    
+    # Set up figure and axis
+    plt.rcParams['figure.dpi'] = 100
+    fig = plt.figure(figsize=(3.6, 6.4), facecolor='black')
+    ax = fig.add_subplot(111)
+    ax.set_position([0, 0, 1, 1])  # Fill the entire figure
     ax.set_facecolor('black')
     
     # Remove ticks and labels
     ax.set_xticks([])
     ax.set_yticks([])
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['left'].set_visible(False)
     
     # Create color palette
     cmap = create_color_palette()
     
     # Generate an initial Mandelbrot set for the starting frame
+    print("Generating initial frame...")
     initial_data = mandelbrot_numpy(height, width, max_iterations, 
-                                  target_x, target_y, start_width)
+                                  target_x, target_y, start_zoom)
     
-    # Initial image using the first Mandelbrot calculation
+    # Initial image - use a logarithmic normalization to enhance color contrast
     img = ax.imshow(initial_data, cmap=cmap, 
-                   interpolation='nearest', extent=[-1, 1, -1, 1],
+                   interpolation='bilinear',
                    norm=plt.Normalize(0, max_iterations))
     
     # Text elements
@@ -151,19 +165,25 @@ def create_mandelbrot_animation(output_dir="output"):
                          horizontalalignment='right', verticalalignment='center',
                          transform=ax.transAxes, fontsize=8)
     
+    # Progress information
+    print("Ready to generate animation frames")
+    
     def update(frame):
         """Update function for each frame of the animation."""
         nonlocal img
+        
+        if frame % 10 == 0:
+            print(f"Processing frame {frame+1}/{frames}...")
         
         # Calculate normalized progress
         progress = frame / frames
         
         # Get precalculated zoom values
-        current_width, zoom_ratio = zoom_values[frame]
+        zoom_width, zoom_ratio = zoom_values[frame]
         
         # Generate the Mandelbrot set for the current zoom level
         mandelbrot_data = mandelbrot_numpy(height, width, max_iterations, 
-                                         target_x, target_y, current_width)
+                                         target_x, target_y, zoom_width)
         
         # Update the image data
         img.set_data(mandelbrot_data)
@@ -213,8 +233,8 @@ def create_mandelbrot_animation(output_dir="output"):
     output_file = os.path.join(output_dir, "mandelbrot_zoom.mp4")
     print(f"Saving animation to {output_file}...")
     
-    # Lower bitrate for faster encoding
-    writer = animation.FFMpegWriter(fps=fps, metadata=dict(artist='ScienceInMotion'), bitrate=2000)
+    # Higher bitrate for better quality
+    writer = animation.FFMpegWriter(fps=fps, metadata=dict(artist='ScienceInMotion'), bitrate=3000)
     anim.save(output_file, writer=writer)
     
     print(f"Mandelbrot zoom animation saved to '{output_file}'")
