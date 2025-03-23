@@ -9,7 +9,8 @@ science_in_motion/
 ├── src/                  # Source code
 │   └── simulations/      # Simulation modules
 │       ├── double_pendulum.py
-│       └── lorenz_attractor.py
+│       ├── lorenz_attractor.py
+│       └── mandelbrot_zoom.py
 ├── examples/             # Example usage scripts
 │   └── generate_animations.py
 ├── output/               # Generated animations (not tracked in git)
@@ -33,6 +34,14 @@ The Lorenz attractor script (`src/simulations/lorenz_attractor.py`) visualizes t
 - Mathematical equations displayed
 - TikTok-optimized portrait format
 
+### Mandelbrot Zoom
+The Mandelbrot zoom script (`src/simulations/mandelbrot_zoom.py`) creates a hypnotic deep zoom into the Mandelbrot fractal. Features include:
+- Smooth exponential zoom into a beautiful spiral pattern
+- Vibrant color palette that highlights fractal details
+- Dynamic text overlays with mathematical information
+- Zoom counter showing the incredible magnification levels
+- TikTok-optimized portrait format
+
 ## Requirements
 
 All required packages are listed in the `requirements.txt` file. You can install them using:
@@ -44,13 +53,27 @@ pip install -r requirements.txt
 ## Usage
 
 ### Quick Start
-The simplest way to generate both animations is to run the example script:
+The simplest way to generate all animations is to run the example script:
 
 ```bash
 python examples/generate_animations.py
 ```
 
-This will create both animations and save them in the `output` directory.
+This will create all animations and save them in the `output` directory.
+
+### Generate Specific Animations
+You can also choose to generate specific animations using command line arguments:
+
+```bash
+# Generate only the Mandelbrot zoom animation
+python examples/generate_animations.py --mandelbrot
+
+# Generate the Lorenz and double pendulum animations
+python examples/generate_animations.py --lorenz --pendulum
+
+# Generate all animations with custom output directory
+python examples/generate_animations.py --all --output my_animations
+```
 
 ### Individual Simulations
 You can also import and use the simulation functions directly in your code:
@@ -58,10 +81,12 @@ You can also import and use the simulation functions directly in your code:
 ```python
 from src.simulations.double_pendulum import create_double_pendulum_animation
 from src.simulations.lorenz_attractor import create_lorenz_animation
+from src.simulations.mandelbrot_zoom import create_mandelbrot_animation
 
 # Generate animations
 create_double_pendulum_animation()
 create_lorenz_animation()
+create_mandelbrot_animation()
 ```
 
 ## About Science in Motion
