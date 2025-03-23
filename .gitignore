@@ -1,0 +1,26 @@
+# Virtual Environment
+venv/
+env/
+ENV/
+.env
+
+# Output files
+*.mp4
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# OS specific files
+.DS_Store
+Thumbs.db 
