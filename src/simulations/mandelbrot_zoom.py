@@ -3,44 +3,38 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.colors import LinearSegmentedColormap
 import os
+from numba import jit  # For just-in-time compilation
 
-def mandelbrot(h, w, max_iters, zoom_sequence):
+@jit(nopython=True)
+def mandelbrot_numpy(h, w, max_iters, center_x, center_y, zoom_width):
     """
-    Calculate the Mandelbrot set for a given frame in the zoom sequence.
+    Calculate the Mandelbrot set using Numba for acceleration.
     
-    Parameters:
-    -----------
-    h, w : int
-        Height and width of the output array
-    max_iters : int
-        Maximum number of iterations for the Mandelbrot calculation
-    zoom_sequence : tuple
-        (center_x, center_y, zoom_width) for the current frame
-    
-    Returns:
-    --------
-    numpy.ndarray
-        Array of iteration counts for each pixel
+    This is a faster implementation using Numba's just-in-time compilation.
     """
-    center_x, center_y, zoom_width = zoom_sequence
     zoom_height = zoom_width * h / w
     
-    y, x = np.ogrid[-center_y:zoom_height-center_y:h*1j, 
-                    -center_x:zoom_width-center_x:w*1j]
+    y_min = -center_y 
+    y_max = zoom_height - center_y
+    x_min = -center_x
+    x_max = zoom_width - center_x
     
-    c = x + y*1j
-    z = c
-    divtime = max_iters + np.zeros(z.shape, dtype=int)
+    x = np.linspace(x_min, x_max, w)
+    y = np.linspace(y_min, y_max, h)
     
-    # Optimized Mandelbrot calculation with numpy vectorization
-    for i in range(max_iters):
-        z = z**2 + c
-        diverge = z*np.conj(z) > 2**2
-        div_now = diverge & (divtime == max_iters)
-        divtime[div_now] = i
-        z[diverge] = 2
+    result = np.zeros((h, w), dtype=np.int32)
     
-    return divtime
+    for i in range(h):
+        for j in range(w):
+            c = complex(x[j], y[i])
+            z = 0.0
+            for k in range(max_iters):
+                z = z*z + c
+                if (z.real*z.real + z.imag*z.imag) >= 4.0:
+                    result[i, j] = k
+                    break
+    
+    return result
 
 def create_color_palette():
     """Create a vibrant color palette suited for the Mandelbrot visualization."""
@@ -81,29 +75,36 @@ def create_mandelbrot_animation(output_dir="output"):
     """
     print("Creating Mandelbrot Zoom animation...")
     
-    # Animation parameters
+    # Animation parameters - reduced for faster processing
     fps = 30
-    duration = 30  # seconds
+    duration = 20  # reduced from 30 seconds to 20 for faster generation
     frames = fps * duration
     
-    # Mandelbrot calculation parameters
-    width, height = 540, 960  # 9:16 portrait ratio for TikTok
-    max_iterations = 100
+    # Mandelbrot calculation parameters - reduced resolution for faster processing
+    width, height = 360, 640  # reduced from 540x960 for faster processing
+    max_iterations = 80       # reduced from 100 for faster processing
     
     # Interesting zoom target coordinates
     # This is a beautiful spiral pattern in the Mandelbrot set
     target_x = -0.743643887037158704752191506114774
     target_y = 0.131825904205311970493132056385139
     
-    # Zoom parameters
+    # Zoom parameters - made less extreme for faster processing
     start_width = 3.0
-    end_width = 0.000000001
+    end_width = 0.00001  # reduced from 0.000000001 for faster processing
     
-    # Calculate the zoom factor for each frame to achieve smooth exponential zoom
-    zoom_factor = (end_width / start_width) ** (1 / frames)
+    # Precalculate zoom values to avoid repeated calculations
+    zoom_values = []
+    for frame in range(frames):
+        # Calculate zoom factor and current width
+        zoom_factor = (end_width / start_width) ** (1 / frames)
+        current_width = start_width * (zoom_factor ** frame)
+        zoom_ratio = start_width / current_width
+        zoom_values.append((current_width, zoom_ratio))
     
     # Create figure and add a subplot with no frame
-    fig = plt.figure(figsize=(5.4, 9.6), facecolor='black', dpi=100)
+    plt.rcParams['figure.dpi'] = 100  # Explicit DPI setting
+    fig = plt.figure(figsize=(3.6, 6.4), facecolor='black')  # Reduced figsize for faster processing
     ax = fig.add_subplot(111, frameon=False)
     ax.set_facecolor('black')
     
@@ -111,9 +112,12 @@ def create_mandelbrot_animation(output_dir="output"):
     ax.set_xticks([])
     ax.set_yticks([])
     
+    # Create color palette
+    cmap = create_color_palette()
+    
     # Initial image placeholder
-    img = ax.imshow(np.zeros((height, width)), cmap=create_color_palette(), 
-                   interpolation='bicubic', extent=[-1, 1, -1, 1])
+    img = ax.imshow(np.zeros((height, width)), cmap=cmap, 
+                   interpolation='nearest', extent=[-1, 1, -1, 1])
     
     # Text elements
     title = plt.text(0.5, 0.95, "Mandelbrot Set", color='white', 
@@ -148,15 +152,12 @@ def create_mandelbrot_animation(output_dir="output"):
         # Calculate normalized progress
         progress = frame / frames
         
-        # Calculate current width based on exponential zoom
-        current_width = start_width * (zoom_factor ** frame)
-        
-        # Calculate zoom ratio for display
-        zoom_ratio = start_width / current_width
+        # Get precalculated zoom values
+        current_width, zoom_ratio = zoom_values[frame]
         
         # Generate the Mandelbrot set for the current zoom level
-        mandelbrot_data = mandelbrot(height, width, max_iterations, 
-                                    (target_x, target_y, current_width))
+        mandelbrot_data = mandelbrot_numpy(height, width, max_iterations, 
+                                         target_x, target_y, current_width)
         
         # Update the image data
         img.set_data(smooth_color(mandelbrot_data, max_iterations))
@@ -206,7 +207,8 @@ def create_mandelbrot_animation(output_dir="output"):
     output_file = os.path.join(output_dir, "mandelbrot_zoom.mp4")
     print(f"Saving animation to {output_file}...")
     
-    writer = animation.FFMpegWriter(fps=fps, metadata=dict(artist='ScienceInMotion'), bitrate=5000)
+    # Lower bitrate for faster encoding
+    writer = animation.FFMpegWriter(fps=fps, metadata=dict(artist='ScienceInMotion'), bitrate=2000)
     anim.save(output_file, writer=writer)
     
     print(f"Mandelbrot zoom animation saved to '{output_file}'")
