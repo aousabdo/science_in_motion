@@ -59,55 +59,113 @@ def create_wave_function_collapse_animation(output_dir="output"):
         for spine in ax.spines.values():
             spine.set_visible(False)
     
-    # Set y-limits
+    # Set y-limits - INCREASED the probability density limit to avoid cutoff
     ax1.set_ylim(-0.8, 0.8)  # For wave function
-    ax2.set_ylim(0, 0.5)     # For probability density
+    ax2.set_ylim(0, 0.8)     # Increased from 0.5 to 0.8 to prevent cutoff
     
-    # Create a vibrant colormap for the visualization
+    # Create a more vibrant colormap for the visualization
     colors = [
-        (0.1, 0, 0.2),     # Deep purple
-        (0.3, 0, 0.6),     # Purple
-        (0.5, 0, 1.0),     # Bright purple
-        (0, 0.5, 1.0),     # Bright blue
-        (0, 0.8, 1.0),     # Cyan
-        (0, 1.0, 0.8),     # Turquoise
-        (0, 1.0, 0.4),     # Light green
-        (0.5, 1.0, 0),     # Lime
-        (1.0, 1.0, 0),     # Yellow
-        (1.0, 0.6, 0),     # Orange
-        (1.0, 0.4, 0),     # Orange-red
-        (1.0, 0, 0),       # Red
-        (1.0, 0, 0.6)      # Pink
+        (0.05, 0, 0.1),     # Deep indigo
+        (0.1, 0, 0.2),      # Deep purple
+        (0.3, 0, 0.6),      # Purple
+        (0.5, 0, 1.0),      # Bright purple
+        (0, 0.5, 1.0),      # Bright blue
+        (0, 0.8, 1.0),      # Cyan
+        (0, 1.0, 0.8),      # Turquoise
+        (0, 1.0, 0.4),      # Light green
+        (0.5, 1.0, 0),      # Lime
+        (1.0, 1.0, 0),      # Yellow
+        (1.0, 0.6, 0),      # Orange
+        (1.0, 0.4, 0),      # Orange-red
+        (1.0, 0, 0),        # Red
+        (1.0, 0, 0.6)       # Pink
     ]
     cmap = LinearSegmentedColormap.from_list('quantum', colors, N=512)
     
-    # Initialize the animation elements
-    wave_line, = ax1.plot([], [], lw=2, color='cyan')
-    prob_fill = ax2.fill_between(x, 0, 0, alpha=0.7, color='cyan')
+    # Secondary colormap for additional visual elements
+    highlight_colors = [
+        (0.0, 0.7, 1.0),    # Bright cyan
+        (0.0, 0.9, 1.0),    # Light cyan
+        (0.0, 1.0, 1.0),    # Cyan
+        (0.0, 1.0, 0.9),    # Cyan-turquoise
+        (0.0, 1.0, 0.7)     # Turquoise
+    ]
+    highlight_cmap = LinearSegmentedColormap.from_list('highlight', highlight_colors, N=256)
+    
+    # Define color presets to use throughout the animation
+    color_presets = {
+        'cyan': '#00EEFF',      # Default cyan
+        'cyan_glow': '#00EEFF',
+        'cyan_fill': '#00DDFF', 
+        'magenta': '#FF00FF',
+        'magenta_fill': '#FF00DD',
+        'green': '#00FF00',
+        'green_fill': '#00DD00',
+        'purple': '#AA00FF',
+        'blue': '#0088FF',
+        'yellow': '#FFEE00',
+        'orange': '#FF8800',
+        'red': '#FF0000'
+    }
+    
+    # Initialize the animation elements with more striking colors
+    wave_line, = ax1.plot([], [], lw=2.5, color=color_presets['cyan'])
+    
+    # Add a glow effect to the wave line
+    glow_line, = ax1.plot([], [], lw=6, color=color_presets['cyan_glow'], alpha=0.3)
+    
+    # Initialize probability with a nicer cyan color
+    prob_fill = ax2.fill_between(x, 0, 0, alpha=0.8, color=color_presets['cyan_fill'])
     
     # Particle effects - will represent "measurements"
-    # Initialize with an empty array in the correct format for scatter
     particles = ax2.scatter([], [], s=20, c=[], cmap=cmap, alpha=0.8)
     
-    # Text elements
+    # Add background particles for additional visual interest
+    bg_particles = ax1.scatter([], [], s=5, c=[], cmap=highlight_cmap, alpha=0.5)
+    
+    # Add grid lines for visual reference (subtle)
+    grid_alpha = 0.1
+    grid_color = '#FFFFFF'
+    for i in range(-5, 6):
+        if i == 0:
+            # Horizontal axis line
+            ax1.axhline(y=0, color=grid_color, linestyle='-', linewidth=0.6, alpha=grid_alpha*2)
+            ax2.axhline(y=0, color=grid_color, linestyle='-', linewidth=0.6, alpha=grid_alpha*2)
+        else:
+            # Vertical grid lines
+            ax1.axvline(x=i, color=grid_color, linestyle='--', linewidth=0.5, alpha=grid_alpha)
+            ax2.axvline(x=i, color=grid_color, linestyle='--', linewidth=0.5, alpha=grid_alpha)
+    
+    # Text elements with enhanced styling
     title = fig.text(0.5, 0.97, "Quantum Wave Function Collapse", 
-                    fontsize=14, color='white', ha='center')
+                    fontsize=16, color='white', ha='center', weight='bold')
     
     subtitle = fig.text(0.5, 0.93, "", 
-                       fontsize=10, color='white', ha='center', alpha=0)
+                       fontsize=12, color=color_presets['cyan'], ha='center', alpha=0,
+                       style='italic')
     
     measurement_text = fig.text(0.5, 0.1, "", 
-                               fontsize=12, color='white', ha='center', alpha=0)
+                               fontsize=14, color=color_presets['cyan'], ha='center', alpha=0,
+                               weight='bold')
     
     equation = fig.text(0.5, 0.05, r"$\hat{H}\Psi = i\hbar\frac{\partial\Psi}{\partial t}$", 
-                       fontsize=12, color='white', ha='center', alpha=0)
+                       fontsize=14, color='white', ha='center', alpha=0)
     
-    # ScienceInMotion branding
+    # ScienceInMotion branding with improved styling
     watermark = fig.text(0.95, 0.97, "ScienceInMotion", 
-                        fontsize=8, color='white', ha='right', alpha=0.7)
+                        fontsize=10, color='white', ha='right', alpha=0.7)
     
     # Store particle data for animation
     particle_data = {'x': [], 'y': [], 'colors': [], 'sizes': [], 'alpha': []}
+    bg_particle_data = {'x': [], 'y': [], 'colors': [], 'sizes': [], 'alpha': []}
+    
+    # Add some static background particles for ambiance
+    for _ in range(50):
+        bg_particle_data['x'].append(np.random.uniform(x_min, x_max))
+        bg_particle_data['y'].append(np.random.uniform(-0.7, 0.7))
+        bg_particle_data['colors'].append(np.random.random())
+        bg_particle_data['sizes'].append(np.random.randint(3, 8))
+        bg_particle_data['alpha'].append(np.random.uniform(0.2, 0.5))
     
     def generate_superposition(t, collapse_start=None, collapse_target=None, collapse_progress=0):
         """
@@ -145,6 +203,7 @@ def create_wave_function_collapse_animation(output_dir="output"):
     def init():
         """Initialize animation"""
         wave_line.set_data([], [])
+        glow_line.set_data([], [])
         
         # Remove existing collection and create a new one
         if len(ax2.collections) > 0:
@@ -152,13 +211,21 @@ def create_wave_function_collapse_animation(output_dir="output"):
                 collection.remove()
         
         # Initialize the fill between
-        prob_fill = ax2.fill_between(x, 0, 0, alpha=0.7, color='cyan')
+        prob_fill = ax2.fill_between(x, 0, 0, alpha=0.8, color=color_presets['cyan_fill'])
         
         # Initialize particles with empty arrays
         particles.set_offsets(np.empty((0, 2)))
         particles.set_array(np.array([]))
         
-        return wave_line, prob_fill, particles, title, subtitle, measurement_text, equation, watermark
+        # Initialize background particles
+        if bg_particle_data['x']:
+            bg_offsets = np.column_stack((bg_particle_data['x'], bg_particle_data['y']))
+            bg_particles.set_offsets(bg_offsets)
+            bg_particles.set_array(np.array(bg_particle_data['colors']))
+            bg_particles.set_sizes(bg_particle_data['sizes'])
+            bg_particles.set_alpha(bg_particle_data['alpha'])
+        
+        return wave_line, glow_line, prob_fill, particles, bg_particles, title, subtitle, measurement_text, equation, watermark
     
     def update(frame):
         """Update function for each frame"""
@@ -174,6 +241,10 @@ def create_wave_function_collapse_animation(output_dir="output"):
         collapse_target = None
         collapse_progress = 0
         collapsed = False
+        
+        # Pick wave and probability colors based on state
+        wave_color = color_presets['cyan']       # Default cyan
+        prob_color = color_presets['cyan_fill']  # Default light cyan
         
         # Stage 1: Introduce the wave function (0% - 10%)
         if progress < 0.1:
@@ -199,6 +270,12 @@ def create_wave_function_collapse_animation(output_dir="output"):
             # Wave function continues to evolve
             psi = generate_superposition(t)
             
+            # Alternate between blue and cyan for visual interest
+            if int(progress * 60) % 2 == 0:
+                wave_color = color_presets['blue']
+            else:
+                wave_color = color_presets['cyan']
+            
         # Stage 3: Measurement is about to happen (25% - 30%)
         elif progress < 0.3:
             # Show measurement text
@@ -208,6 +285,14 @@ def create_wave_function_collapse_animation(output_dir="output"):
             
             # Wave function still in superposition but "vibrating" more
             psi = generate_superposition(t * (1 + 2 * measurement_progress))
+            
+            # Shift toward purple as measurement approaches
+            if measurement_progress < 0.33:
+                wave_color = color_presets['cyan']
+            elif measurement_progress < 0.66:
+                wave_color = color_presets['blue']
+            else:
+                wave_color = color_presets['purple']
             
         # Stage 4: First collapse (30% - 40%)
         elif progress < 0.4:
@@ -221,8 +306,18 @@ def create_wave_function_collapse_animation(output_dir="output"):
                 measurement_text.set_text("Measured: Energy Level 2")
                 subtitle.set_text("Wave Function Collapsed!")
                 collapsed = True
+                # Use magenta for collapsed state
+                wave_color = color_presets['magenta']
+                prob_color = color_presets['magenta_fill']
             else:
                 measurement_text.set_text("Measuring...")
+                # Transition colors during collapse
+                if collapse_progress < 0.33:
+                    wave_color = color_presets['purple']
+                elif collapse_progress < 0.66:
+                    wave_color = '#DD00FF'  # Between purple and magenta
+                else:
+                    wave_color = color_presets['magenta']
                 
             measurement_text.set_alpha(1.0)
             
@@ -235,6 +330,10 @@ def create_wave_function_collapse_animation(output_dir="output"):
             collapse_target = 2
             collapse_progress = 1.0
             collapsed = True
+            
+            # Keep magenta theme for collapsed state
+            wave_color = color_presets['magenta']
+            prob_color = color_presets['magenta_fill']
             
             # Fade out measurement text
             fade_out = min(1.0, max(0.0, 1.0 - min(1.0, (progress - 0.45) / 0.05)))
@@ -256,10 +355,23 @@ def create_wave_function_collapse_animation(output_dir="output"):
             subtitle.set_text("Returning to Superposition")
             subtitle.set_alpha(1.0)
             
+            # Transition color back from magenta to cyan
+            if uncollapse_progress < 0.33:
+                wave_color = color_presets['magenta']
+                prob_color = color_presets['magenta_fill']
+            elif uncollapse_progress < 0.66:
+                wave_color = color_presets['purple']
+                prob_color = '#DD00FF'
+            else:
+                wave_color = color_presets['blue']
+                prob_color = color_presets['cyan_fill']
+            
             if uncollapse_progress >= 1.0:
                 collapse_start = None
                 collapse_target = None
                 collapse_progress = 0
+                wave_color = color_presets['cyan']
+                prob_color = color_presets['cyan_fill']
             else:
                 collapse_start = 0.3
             
@@ -274,8 +386,14 @@ def create_wave_function_collapse_animation(output_dir="output"):
             
             subtitle.set_text("Quantum States Interfering")
             
-            # Wave function in superposition
+            # Wave function in superposition with color variation
             psi = generate_superposition(t)
+            
+            # Alternate cyan/blue for visual interest 
+            if int(progress * 60) % 2 == 0:
+                wave_color = color_presets['cyan']
+            else:
+                wave_color = color_presets['blue']
             
         # Stage 8: Second collapse (65% - 75%)
         elif progress < 0.75:
@@ -289,8 +407,18 @@ def create_wave_function_collapse_animation(output_dir="output"):
                 measurement_text.set_text("Measured: Energy Level 4")
                 subtitle.set_text("Different Result This Time!")
                 collapsed = True
+                # Shift to green for second collapsed state
+                wave_color = color_presets['green']
+                prob_color = color_presets['green_fill']
             else:
                 measurement_text.set_text("Measuring...")
+                # Transition colors during second collapse
+                if collapse_progress < 0.33:
+                    wave_color = color_presets['cyan']
+                elif collapse_progress < 0.66:
+                    wave_color = '#00CCAA'  # Between cyan and green
+                else:
+                    wave_color = color_presets['green']
                 
             measurement_text.set_alpha(1.0)
             
@@ -304,6 +432,10 @@ def create_wave_function_collapse_animation(output_dir="output"):
             collapse_target = 4
             collapse_progress = 1.0
             collapsed = True
+            
+            # Keep green theme for second collapsed state
+            wave_color = color_presets['green']
+            prob_color = color_presets['green_fill']
             
             # Different messages during this phase
             if progress < 0.8:
@@ -333,28 +465,55 @@ def create_wave_function_collapse_animation(output_dir="output"):
             # Gradually uncollapse and slow down
             uncollapse_progress = min(1.0, (progress - 0.9) / 0.05)
             if uncollapse_progress >= 1.0:
-                # Full superposition again for outro
+                # Full superposition again for outro with color cycling
                 psi = generate_superposition(t * (1.0 - (progress - 0.95) / 0.05))
+                
+                # Rainbow color cycle for outro using predefined colors
+                outro_progress = (progress - 0.95) / 0.05
+                if outro_progress < 0.2:
+                    wave_color = color_presets['green']
+                elif outro_progress < 0.4:
+                    wave_color = color_presets['yellow']
+                elif outro_progress < 0.6:
+                    wave_color = color_presets['orange']
+                elif outro_progress < 0.8:
+                    wave_color = color_presets['red']
+                else:
+                    wave_color = color_presets['cyan']
             else:
                 # Gradually return to superposition
                 collapse_progress = 1.0 - uncollapse_progress
                 psi = generate_superposition(t, 0.65, 4, collapse_progress)
+                
+                # Transition from green to cyan through blue
+                if uncollapse_progress < 0.33:
+                    wave_color = color_presets['green']
+                elif uncollapse_progress < 0.66:
+                    wave_color = '#00AAFF'  # Blue-cyan
+                else:
+                    wave_color = color_presets['cyan']
         
         # Extract real part and probability density
         psi_real = np.real(psi)
         probability = np.abs(psi)**2
         
-        # Update the wave function plot
+        # Update the wave function plot with glowing effect
         wave_line.set_data(x, psi_real)
+        wave_line.set_color(wave_color)
+        
+        # Update glow line (wider line behind main line for glow effect)
+        glow_line.set_data(x, psi_real)
+        glow_line.set_color(wave_color)
+        glow_line.set_alpha(0.3)
         
         # Remove previous fill_between
         if len(ax2.collections) > 0:
             for collection in ax2.collections[:]:
                 collection.remove()
         
-        # Add new fill_between
-        prob_fill = ax2.fill_between(x, 0, probability, alpha=0.7, 
-                                   color=('cyan' if not collapsed else 'magenta'))
+        # Add new fill_between with vibrant colors
+        prob_fill = ax2.fill_between(x, 0, probability, alpha=0.8, 
+                                   color=prob_color)
         
         # Handle particle effects for measurement visualization
         
@@ -365,8 +524,10 @@ def create_wave_function_collapse_animation(output_dir="output"):
             # Determine collapsed state
             if 0.3 < progress < 0.4:
                 target = 2
+                particle_color_base = 0.7  # Magenta range
             else:
                 target = 4
+                particle_color_base = 0.3  # Green range
                 
             # Add particles near the peaks of the target state's probability
             peak_indices = []
@@ -381,7 +542,7 @@ def create_wave_function_collapse_animation(output_dir="output"):
             # Add particles near these peaks
             for peak_idx in peak_indices:
                 peak_x = x[peak_idx]
-                for _ in range(np.random.randint(1, 4)):  # 1-3 particles per peak
+                for _ in range(np.random.randint(2, 5)):  # 2-4 particles per peak
                     # Position with some random noise
                     particle_x = peak_x + np.random.normal(0, 0.1)
                     particle_y = np.random.uniform(0.05, probability[peak_idx])
@@ -389,9 +550,20 @@ def create_wave_function_collapse_animation(output_dir="output"):
                     # Add to particle data lists
                     particle_data['x'].append(particle_x)
                     particle_data['y'].append(particle_y)
-                    particle_data['colors'].append(np.random.random())  # Random color
-                    particle_data['sizes'].append(np.random.randint(10, 50))  # Random size
+                    # Color varies around the base color for visual interest
+                    particle_data['colors'].append(particle_color_base + np.random.uniform(-0.1, 0.1))  
+                    particle_data['sizes'].append(np.random.randint(15, 60))  # Larger size range
                     particle_data['alpha'].append(1.0)  # Start fully visible
+        
+        # Add background ambient particles occasionally
+        if frame % 15 == 0:
+            num_ambient = np.random.randint(1, 4)
+            for _ in range(num_ambient):
+                bg_particle_data['x'].append(np.random.uniform(x_min, x_max))
+                bg_particle_data['y'].append(np.random.uniform(-0.7, 0.7))
+                bg_particle_data['colors'].append(np.random.random())
+                bg_particle_data['sizes'].append(np.random.randint(3, 8))
+                bg_particle_data['alpha'].append(np.random.uniform(0.2, 0.5))
         
         # Update existing particles (fade out and move)
         if particle_data['x']:
@@ -401,12 +573,38 @@ def create_wave_function_collapse_animation(output_dir="output"):
                 # Decrease alpha (fade out)
                 particle_data['alpha'][i] -= 0.05
                 
+                # Add some vertical movement
+                if collapsed:
+                    # Particles drift toward probability peaks in collapsed state
+                    particle_data['y'][i] += np.random.uniform(-0.02, 0.04)
+                else:
+                    # Random drift in superposition
+                    particle_data['y'][i] += np.random.uniform(-0.03, 0.03)
+                
                 if particle_data['alpha'][i] > 0:
                     indices_to_keep.append(i)
             
             # Keep only non-faded particles
             for key in particle_data:
                 particle_data[key] = [particle_data[key][i] for i in indices_to_keep]
+        
+        # Update background particles
+        if bg_particle_data['x']:
+            indices_to_keep = []
+            for i in range(len(bg_particle_data['x'])):
+                # Slowly fade background particles
+                bg_particle_data['alpha'][i] -= 0.01
+                
+                # Gentle drift
+                bg_particle_data['x'][i] += np.random.uniform(-0.02, 0.02)
+                bg_particle_data['y'][i] += np.random.uniform(-0.01, 0.01)
+                
+                if bg_particle_data['alpha'][i] > 0:
+                    indices_to_keep.append(i)
+            
+            # Keep only non-faded particles
+            for key in bg_particle_data:
+                bg_particle_data[key] = [bg_particle_data[key][i] for i in indices_to_keep]
         
         # Update particle scatter plot
         if particle_data['x']:
@@ -423,8 +621,19 @@ def create_wave_function_collapse_animation(output_dir="output"):
             particles.set_offsets(np.empty((0, 2)))
             particles.set_array(np.array([]))
         
+        # Update background particles
+        if bg_particle_data['x']:
+            bg_offsets = np.column_stack((bg_particle_data['x'], bg_particle_data['y']))
+            bg_particles.set_offsets(bg_offsets)
+            bg_particles.set_array(np.array(bg_particle_data['colors']))
+            bg_particles.set_sizes(bg_particle_data['sizes'])
+            bg_particles.set_alpha(bg_particle_data['alpha'])
+        else:
+            bg_particles.set_offsets(np.empty((0, 2)))
+            bg_particles.set_array(np.array([]))
+        
         # Return updated artists
-        return wave_line, prob_fill, particles, title, subtitle, measurement_text, equation, watermark
+        return wave_line, glow_line, prob_fill, particles, bg_particles, title, subtitle, measurement_text, equation, watermark
     
     # Create the animation
     print(f"Creating animation with {frames} frames at {fps} fps...")
