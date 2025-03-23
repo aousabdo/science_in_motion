@@ -86,21 +86,21 @@ def create_mandelbrot_animation(output_dir="output"):
     
     # Animation parameters
     fps = 30
-    duration = 15  # reduced for faster generation
+    duration = 30  # extended to 30 seconds as requested
     frames = fps * duration
     
     # Mandelbrot calculation parameters - reduced resolution for faster processing
     width, height = 360, 640  # reduced resolution for faster processing
-    max_iterations = 150  # increased for better detail
+    max_iterations = 200  # increased for more detail during deep zoom
     
-    # Interesting zoom target coordinates
-    # This is a beautiful spiral pattern in the Mandelbrot set
-    target_x = -0.7435669
-    target_y = 0.1314023
+    # Interesting zoom target coordinates - changed to mini-brot with spirals
+    # This location shows intricate details throughout the zoom
+    target_x = -0.743643887037151
+    target_y = 0.131825904205330
     
     # Zoom parameters
     start_zoom = 3.5  # start further out to see the whole set
-    end_zoom = 0.0001  # don't zoom in too far
+    end_zoom = 0.000005  # adjusted to see interesting patterns throughout
     
     # Calculate zoom sequence
     zoom_values = []
@@ -192,27 +192,27 @@ def create_mandelbrot_animation(output_dir="output"):
         depth_counter.set_text(f"Zoom: {zoom_ratio:.1f}x")
         
         # Handle text animations based on progress
-        if progress < 0.1:  # Intro
+        if progress < 0.05:  # Intro - shorter to allow more zoom time
             # Fade in title and equation
-            alpha = min(1.0, progress / 0.05)
+            alpha = min(1.0, progress / 0.025)
             title.set_alpha(alpha)
             equation.set_alpha(alpha)
             watermark.set_alpha(alpha * 0.7)
             info_text.set_alpha(0)
             coordinates.set_alpha(0)
         
-        elif 0.3 < progress < 0.5:  # Show info text
-            info_alpha = min(1.0, (progress - 0.3) * 5)
+        elif 0.15 < progress < 0.25:  # Show info text
+            info_alpha = min(1.0, (progress - 0.15) * 10)
             info_text.set_alpha(info_alpha)
             coordinates.set_alpha(0)
         
-        elif 0.5 < progress < 0.7:  # Fade out info text, show coordinates
-            info_alpha = max(0, 1.0 - (progress - 0.5) * 5)
-            coord_alpha = min(1.0, (progress - 0.5) * 5)
+        elif 0.25 < progress < 0.35:  # Fade out info text, show coordinates
+            info_alpha = max(0, 1.0 - (progress - 0.25) * 10)
+            coord_alpha = min(1.0, (progress - 0.25) * 10)
             info_text.set_alpha(info_alpha)
             coordinates.set_alpha(coord_alpha)
         
-        elif 0.7 < progress < 0.9:  # Show coordinates
+        elif 0.35 < progress < 0.9:  # Show coordinates for longer during zoom
             info_text.set_alpha(0)
             coordinates.set_alpha(1.0)
         
@@ -234,7 +234,7 @@ def create_mandelbrot_animation(output_dir="output"):
     print(f"Saving animation to {output_file}...")
     
     # Higher bitrate for better quality
-    writer = animation.FFMpegWriter(fps=fps, metadata=dict(artist='ScienceInMotion'), bitrate=3000)
+    writer = animation.FFMpegWriter(fps=fps, metadata=dict(artist='ScienceInMotion'), bitrate=3500)
     anim.save(output_file, writer=writer)
     
     print(f"Mandelbrot zoom animation saved to '{output_file}'")
