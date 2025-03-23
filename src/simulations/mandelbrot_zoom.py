@@ -22,7 +22,7 @@ def mandelbrot_numpy(h, w, max_iters, center_x, center_y, zoom_width):
     x = np.linspace(x_min, x_max, w)
     y = np.linspace(y_min, y_max, h)
     
-    result = np.zeros((h, w), dtype=np.int32)
+    result = np.zeros((h, w), dtype=np.float32)
     
     for i in range(h):
         for j in range(w):
@@ -31,7 +31,8 @@ def mandelbrot_numpy(h, w, max_iters, center_x, center_y, zoom_width):
             for k in range(max_iters):
                 z = z*z + c
                 if (z.real*z.real + z.imag*z.imag) >= 4.0:
-                    result[i, j] = k
+                    # Apply smooth coloring formula
+                    result[i, j] = k + 1 - np.log(np.log(abs(z))) / np.log(2)
                     break
     
     return result
@@ -40,6 +41,7 @@ def create_color_palette():
     """Create a vibrant color palette suited for the Mandelbrot visualization."""
     colors = [
         (0, 0, 0),       # Black
+        (0.1, 0, 0.2),   # Near-black purple for subtle variation in dark areas
         (0, 0, 0.5),     # Dark blue
         (0, 0, 1),       # Blue
         (0, 0.5, 1),     # Sky blue
@@ -53,15 +55,12 @@ def create_color_palette():
         (1, 0, 0.5),     # Pink
         (1, 0, 1),       # Magenta
         (0.5, 0, 1),     # Purple
-        (0, 0, 0.5),     # Dark blue (cycle back)
+        (0.2, 0, 0.5),   # Dark purple
+        (0, 0, 0.3),     # Near-black blue (almost black but not quite)
+        (0, 0, 0),       # Black (cycle back)
     ]
     
     return LinearSegmentedColormap.from_list('mandelbrot', colors, N=2048)
-
-def smooth_color(iterations, max_iters):
-    """Apply smooth coloring to the Mandelbrot set for better visuals."""
-    # Normalized iterations for smooth coloring
-    return iterations / max_iters
 
 def create_mandelbrot_animation(output_dir="output"):
     """
@@ -82,7 +81,7 @@ def create_mandelbrot_animation(output_dir="output"):
     
     # Mandelbrot calculation parameters - reduced resolution for faster processing
     width, height = 360, 640  # reduced from 540x960 for faster processing
-    max_iterations = 80       # reduced from 100 for faster processing
+    max_iterations = 100      # increased from 80 for better detail
     
     # Interesting zoom target coordinates
     # This is a beautiful spiral pattern in the Mandelbrot set
@@ -93,14 +92,16 @@ def create_mandelbrot_animation(output_dir="output"):
     start_width = 3.0
     end_width = 0.00001  # reduced from 0.000000001 for faster processing
     
+    # Calculate zoom factor once, outside the loop
+    zoom_factor = (end_width / start_width) ** (1 / frames)
+    
     # Precalculate zoom values to avoid repeated calculations
     zoom_values = []
+    current_width = start_width
     for frame in range(frames):
-        # Calculate zoom factor and current width
-        zoom_factor = (end_width / start_width) ** (1 / frames)
-        current_width = start_width * (zoom_factor ** frame)
         zoom_ratio = start_width / current_width
         zoom_values.append((current_width, zoom_ratio))
+        current_width *= zoom_factor
     
     # Create figure and add a subplot with no frame
     plt.rcParams['figure.dpi'] = 100  # Explicit DPI setting
@@ -115,9 +116,14 @@ def create_mandelbrot_animation(output_dir="output"):
     # Create color palette
     cmap = create_color_palette()
     
-    # Initial image placeholder
-    img = ax.imshow(np.zeros((height, width)), cmap=cmap, 
-                   interpolation='nearest', extent=[-1, 1, -1, 1])
+    # Generate an initial Mandelbrot set for the starting frame
+    initial_data = mandelbrot_numpy(height, width, max_iterations, 
+                                  target_x, target_y, start_width)
+    
+    # Initial image using the first Mandelbrot calculation
+    img = ax.imshow(initial_data, cmap=cmap, 
+                   interpolation='nearest', extent=[-1, 1, -1, 1],
+                   norm=plt.Normalize(0, max_iterations))
     
     # Text elements
     title = plt.text(0.5, 0.95, "Mandelbrot Set", color='white', 
@@ -160,7 +166,7 @@ def create_mandelbrot_animation(output_dir="output"):
                                          target_x, target_y, current_width)
         
         # Update the image data
-        img.set_data(smooth_color(mandelbrot_data, max_iterations))
+        img.set_data(mandelbrot_data)
         
         # Update the zoom counter text
         depth_counter.set_text(f"Zoom: {zoom_ratio:.1f}x")
