@@ -59,6 +59,14 @@ def create_wave_function_collapse_animation(output_dir="output"):
         for spine in ax.spines.values():
             spine.set_visible(False)
     
+    # Add mathematical x-axis markings like in the reference images
+    ax2.set_xticks([-np.pi, -np.pi/2, 0, np.pi/2, np.pi])
+    ax2.set_xticklabels(['$-\\pi$', '$-\\frac{\\pi}{2}$', '$0$', '$\\frac{\\pi}{2}$', '$\\pi$'], 
+                      fontsize=12, color='white')
+    ax2.tick_params(axis='x', colors='#FF0000', length=6)  # Red x-axis ticks
+    # Add light red x-axis
+    ax2.axhline(y=0, color='#FF0000', linewidth=1, alpha=0.7)
+    
     # Set y-limits - INCREASED the probability density limit to avoid cutoff
     ax1.set_ylim(-0.8, 0.8)  # For wave function
     ax2.set_ylim(0, 0.8)     # Increased from 0.5 to 0.8 to prevent cutoff
@@ -136,30 +144,32 @@ def create_wave_function_collapse_animation(output_dir="output"):
             ax1.axvline(x=i, color=grid_color, linestyle='--', linewidth=0.5, alpha=grid_alpha)
             ax2.axvline(x=i, color=grid_color, linestyle='--', linewidth=0.5, alpha=grid_alpha)
     
-    # Text elements with enhanced styling
+    # Text elements with clean mathematical styling matching the reference images
     title = fig.text(0.5, 0.97, "Quantum Wave Function Collapse", 
-                    fontsize=16, color='white', ha='center', weight='bold')
+                    fontsize=18, color='white', ha='center', weight='bold', 
+                    fontname='DejaVu Sans')
     
     subtitle = fig.text(0.5, 0.93, "", 
-                       fontsize=12, color=color_presets['cyan'], ha='center', alpha=0,
-                       style='italic')
+                       fontsize=14, color=color_presets['cyan'], ha='center', alpha=0,
+                       style='italic', fontname='DejaVu Serif')
     
-    # Add an explanatory caption that will be more prominent
-    explanation = fig.text(0.5, 0.03, "", 
-                         fontsize=13, color='white', ha='center', alpha=0,
-                         weight='bold', bbox=dict(facecolor='black', alpha=0.7, 
-                                               edgecolor='white', pad=5))
-    
-    measurement_text = fig.text(0.5, 0.1, "", 
-                               fontsize=14, color=color_presets['cyan'], ha='center', alpha=0,
-                               weight='bold')
-    
+    # Mathematical equation with proper LaTeX styling
     equation = fig.text(0.5, 0.05, r"$\hat{H}\Psi = i\hbar\frac{\partial\Psi}{\partial t}$", 
-                       fontsize=14, color='white', ha='center', alpha=0)
+                       fontsize=18, color='white', ha='center', alpha=0, fontname='DejaVu Serif')
     
-    # ScienceInMotion branding with improved styling
-    watermark = fig.text(0.95, 0.97, "ScienceInMotion", 
-                        fontsize=10, color='white', ha='right', alpha=0.7)
+    # ScienceInMotion branding - styled similar to the @fourier_borel credit in images
+    watermark = fig.text(0.5, 0.01, "@ScienceInMotion", 
+                        fontsize=16, color='#FF00FF', ha='center', alpha=0.7, fontname='DejaVu Sans')
+    
+    # Measurement text with clear mathematical styling
+    measurement_text = fig.text(0.5, 0.8, "", 
+                              fontsize=16, color=color_presets['cyan'], ha='center', alpha=0,
+                              weight='bold', fontname='DejaVu Sans')
+    
+    # Make explanation text cleaner and match reference style - removing the box for cleaner look
+    explanation = fig.text(0.5, 0.15, "", 
+                         fontsize=14, color='white', ha='center', alpha=0,
+                         fontname='DejaVu Sans')
     
     # Store particle data for animation
     particle_data = {'x': [], 'y': [], 'colors': [], 'sizes': [], 'alpha': []}
@@ -267,8 +277,8 @@ def create_wave_function_collapse_animation(output_dir="output"):
             subtitle.set_text(subtitle_text)
             subtitle.set_alpha(alpha if progress > 0.05 else 0)
             
-            # Set explanatory text
-            explanation_text = "In quantum mechanics, particles exist in multiple states at once"
+            # Set explanatory text - simplified to match reference style
+            explanation_text = "Particles exist in multiple states simultaneously"
             explanation.set_text(explanation_text)
             explanation.set_alpha(alpha if progress > 0.05 else 0)
             
@@ -524,11 +534,11 @@ def create_wave_function_collapse_animation(output_dir="output"):
             title.set_alpha(fade_out)
             subtitle.set_alpha(fade_out)
             equation.set_alpha(fade_out * 0.8)
-            watermark.set_alpha(fade_out * 0.7)
+            watermark.set_alpha(1.0)  # Keep watermark visible at all times like in reference images
             measurement_text.set_alpha(0)
             
             # Final explanatory text fading out
-            explanation_text = "Follow @ScienceInMotion for more quantum content!"
+            explanation_text = "@ScienceInMotion"  # Match the reference style
             explanation.set_text(explanation_text)
             explanation.set_alpha(fade_out)
             
