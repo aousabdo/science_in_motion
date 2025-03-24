@@ -144,14 +144,10 @@ def create_wave_function_collapse_animation(output_dir="output"):
             ax1.axvline(x=i, color=grid_color, linestyle='--', linewidth=0.5, alpha=grid_alpha)
             ax2.axvline(x=i, color=grid_color, linestyle='--', linewidth=0.5, alpha=grid_alpha)
     
-    # Text elements with clean mathematical styling matching the reference images
-    title = fig.text(0.5, 0.97, "Quantum Wave Function Collapse", 
+    # Text elements - minimalistic styling like the reference images
+    title = fig.text(0.5, 0.97, "Quantum Wave Function", 
                     fontsize=18, color='white', ha='center', weight='bold', 
-                    fontname='DejaVu Sans')
-    
-    subtitle = fig.text(0.5, 0.93, "", 
-                       fontsize=14, color=color_presets['cyan'], ha='center', alpha=0,
-                       style='italic', fontname='DejaVu Serif')
+                    fontname='DejaVu Serif')
     
     # Mathematical equation with proper LaTeX styling
     equation = fig.text(0.5, 0.05, r"$\hat{H}\Psi = i\hbar\frac{\partial\Psi}{\partial t}$", 
@@ -161,15 +157,11 @@ def create_wave_function_collapse_animation(output_dir="output"):
     watermark = fig.text(0.5, 0.01, "@ScienceInMotion", 
                         fontsize=16, color='#FF00FF', ha='center', alpha=0.7, fontname='DejaVu Sans')
     
-    # Measurement text with clear mathematical styling
+    # Remove all explanatory texts
+    # Just keep a minimal measurement text for important events
     measurement_text = fig.text(0.5, 0.8, "", 
                               fontsize=16, color=color_presets['cyan'], ha='center', alpha=0,
-                              weight='bold', fontname='DejaVu Sans')
-    
-    # Make explanation text cleaner and match reference style - removing the box for cleaner look
-    explanation = fig.text(0.5, 0.15, "", 
-                         fontsize=14, color='white', ha='center', alpha=0,
-                         fontname='DejaVu Sans')
+                              weight='bold', fontname='DejaVu Serif')
     
     # Store particle data for animation
     particle_data = {'x': [], 'y': [], 'colors': [], 'sizes': [], 'alpha': []}
@@ -241,7 +233,7 @@ def create_wave_function_collapse_animation(output_dir="output"):
             bg_particles.set_sizes(bg_particle_data['sizes'])
             bg_particles.set_alpha(bg_particle_data['alpha'])
         
-        return wave_line, glow_line, prob_fill, particles, bg_particles, title, subtitle, measurement_text, equation, explanation, watermark
+        return wave_line, glow_line, prob_fill, particles, bg_particles, title, measurement_text, equation, watermark
     
     def update(frame):
         """Update function for each frame"""
@@ -261,9 +253,6 @@ def create_wave_function_collapse_animation(output_dir="output"):
         # Pick wave and probability colors based on state
         wave_color = color_presets['cyan']       # Default cyan
         prob_color = color_presets['cyan_fill']  # Default light cyan
-        
-        # Initialize explanation text as empty (will be updated in each section)
-        explanation_text = ""
 
         # Stage 1: Introduce the wave function (0% - 10%)
         if progress < 0.1:
@@ -273,29 +262,11 @@ def create_wave_function_collapse_animation(output_dir="output"):
             equation.set_alpha(alpha * 0.8)
             watermark.set_alpha(alpha * 0.7)
             
-            subtitle_text = "Superposition of Quantum States"
-            subtitle.set_text(subtitle_text)
-            subtitle.set_alpha(alpha if progress > 0.05 else 0)
-            
-            # Set explanatory text - simplified to match reference style
-            explanation_text = "Particles exist in multiple states simultaneously"
-            explanation.set_text(explanation_text)
-            explanation.set_alpha(alpha if progress > 0.05 else 0)
-            
             # Wave function in superposition
             psi = generate_superposition(t)
             
         # Stage 2: Explain superposition (10% - 25%)
         elif progress < 0.25:
-            subtitle_text = "Many Possible States Exist Simultaneously"
-            subtitle.set_text(subtitle_text)
-            subtitle.set_alpha(1.0)
-            
-            # Update explanatory text
-            explanation_text = "This is called superposition - all possibilities exist simultaneously"
-            explanation.set_text(explanation_text)
-            explanation.set_alpha(1.0)
-            
             # Wave function continues to evolve
             psi = generate_superposition(t)
             
@@ -309,15 +280,8 @@ def create_wave_function_collapse_animation(output_dir="output"):
         elif progress < 0.3:
             # Show measurement text
             measurement_progress = (progress - 0.25) / 0.05
-            measurement_text.set_text("Preparing to Measure...")
+            measurement_text.set_text("Measurement")
             measurement_text.set_alpha(measurement_progress)
-            
-            subtitle.set_text("Quantum Measurement Incoming")
-            
-            # Update explanatory text
-            explanation_text = "When we observe, the wave function begins to collapse..."
-            explanation.set_text(explanation_text)
-            explanation.set_alpha(1.0)
             
             # Wave function still in superposition but "vibrating" more
             psi = generate_superposition(t * (1 + 2 * measurement_progress))
@@ -339,20 +303,13 @@ def create_wave_function_collapse_animation(output_dir="output"):
             
             # Update text
             if collapse_progress >= 1.0:
-                measurement_text.set_text("Measured: Energy Level 2")
-                subtitle.set_text("Wave Function Collapsed!")
+                measurement_text.set_text("Energy Level 2")
                 collapsed = True
                 # Use magenta for collapsed state
                 wave_color = color_presets['magenta']
                 prob_color = color_presets['magenta_fill']
-                
-                # Update explanatory text for completed collapse
-                explanation_text = "Measurement forces the system to pick one definite state"
             else:
-                measurement_text.set_text("Measuring...")
-                
-                # Transition text during collapse
-                explanation_text = "The quantum system is choosing a specific state..."
+                measurement_text.set_text("Measuring")
                 
                 # Transition colors during collapse
                 if collapse_progress < 0.33:
@@ -363,8 +320,6 @@ def create_wave_function_collapse_animation(output_dir="output"):
                     wave_color = color_presets['magenta']
                 
             measurement_text.set_alpha(1.0)
-            explanation.set_text(explanation_text)
-            explanation.set_alpha(1.0)
             
             # Generate collapsed wave function
             psi = generate_superposition(t, collapse_start, collapse_target, collapse_progress)
@@ -382,15 +337,8 @@ def create_wave_function_collapse_animation(output_dir="output"):
             
             # Fade out measurement text
             fade_out = min(1.0, max(0.0, 1.0 - min(1.0, (progress - 0.45) / 0.05)))
-            measurement_text.set_text("Measured: Energy Level 2")
+            measurement_text.set_text("Energy Level 2")
             measurement_text.set_alpha(fade_out)
-            
-            subtitle.set_text("System in Definite Energy State")
-            
-            # Update explanatory text
-            explanation_text = "After measurement, the particle exists in only one state"
-            explanation.set_text(explanation_text)
-            explanation.set_alpha(1.0)
             
             # Generate collapsed wave function
             psi = generate_superposition(t, 0.3, collapse_target, collapse_progress)
@@ -401,14 +349,6 @@ def create_wave_function_collapse_animation(output_dir="output"):
             uncollapse_progress = min(1.0, (progress - 0.5) / 0.05)
             collapse_progress = 1.0 - uncollapse_progress
             collapse_target = 2
-            
-            subtitle.set_text("Returning to Superposition")
-            subtitle.set_alpha(1.0)
-            
-            # Update explanatory text
-            explanation_text = "Without observation, the system returns to superposition"
-            explanation.set_text(explanation_text)
-            explanation.set_alpha(1.0)
             
             # Transition color back from magenta to cyan
             if uncollapse_progress < 0.33:
@@ -436,15 +376,8 @@ def create_wave_function_collapse_animation(output_dir="output"):
         # Stage 7: Second measurement preparation (60% - 65%)
         elif progress < 0.65:
             measurement_progress = (progress - 0.6) / 0.05
-            measurement_text.set_text("Preparing Another Measurement...")
+            measurement_text.set_text("Measurement")
             measurement_text.set_alpha(measurement_progress)
-            
-            subtitle.set_text("Quantum States Interfering")
-            
-            # Update explanatory text
-            explanation_text = "Let's observe the system again and see what happens"
-            explanation.set_text(explanation_text)
-            explanation.set_alpha(1.0)
             
             # Wave function in superposition with color variation
             psi = generate_superposition(t)
@@ -464,20 +397,13 @@ def create_wave_function_collapse_animation(output_dir="output"):
             
             # Update text
             if collapse_progress >= 1.0:
-                measurement_text.set_text("Measured: Energy Level 4")
-                subtitle.set_text("Different Result This Time!")
+                measurement_text.set_text("Energy Level 4")
                 collapsed = True
                 # Shift to green for second collapsed state
                 wave_color = color_presets['green']
                 prob_color = color_presets['green_fill']
-                
-                # Update explanatory text
-                explanation_text = "A second measurement can give different results!"
             else:
-                measurement_text.set_text("Measuring...")
-                
-                # Update explanatory text during collapse
-                explanation_text = "Quantum measurements are inherently random..."
+                measurement_text.set_text("Measuring")
                 
                 # Transition colors during second collapse
                 if collapse_progress < 0.33:
@@ -488,8 +414,6 @@ def create_wave_function_collapse_animation(output_dir="output"):
                     wave_color = color_presets['green']
                 
             measurement_text.set_alpha(1.0)
-            explanation.set_text(explanation_text)
-            explanation.set_alpha(1.0)
             
             # Generate collapsed wave function
             psi = generate_superposition(t, collapse_start, collapse_target, collapse_progress)
@@ -506,41 +430,23 @@ def create_wave_function_collapse_animation(output_dir="output"):
             wave_color = color_presets['green']
             prob_color = color_presets['green_fill']
             
-            # Different messages during this phase
-            if progress < 0.8:
-                subtitle.set_text("Quantum Measurement Is Probabilistic")
-                explanation_text = "This probabilistic nature is fundamental to quantum physics"
-            elif progress < 0.85:
-                subtitle.set_text("Each Measurement May Give Different Results")
-                explanation_text = "The randomness is not due to ignorance, but is a core feature"
-            else:
-                # Begin fading out measurement text
-                fade_out = min(1.0, max(0.0, 1.0 - min(1.0, (progress - 0.85) / 0.05)))
-                measurement_text.set_alpha(fade_out)
-                subtitle.set_text("The Heart of Quantum Mechanics")
-                explanation_text = "Quantum mechanics fundamentally changes how we see reality"
-            
-            explanation.set_text(explanation_text)
-            explanation.set_alpha(1.0)
+            # Fade out measurement text
+            fade_out = min(1.0, max(0.0, 1.0 - min(1.0, (progress - 0.75) / 0.05)))
+            measurement_text.set_text("Energy Level 4")
+            measurement_text.set_alpha(fade_out)
             
             # Generate collapsed wave function
             psi = generate_superposition(t, collapse_start, collapse_target, collapse_progress)
             
         # Stage 10: Outro (90% - 100%)
         else:
-            # Fade everything out
+            # Fade everything out except watermark
             fade_out = min(1.0, max(0.0, 1.0 - min(1.0, (progress - 0.9) / 0.1)))
             
             title.set_alpha(fade_out)
-            subtitle.set_alpha(fade_out)
             equation.set_alpha(fade_out * 0.8)
             watermark.set_alpha(1.0)  # Keep watermark visible at all times like in reference images
             measurement_text.set_alpha(0)
-            
-            # Final explanatory text fading out
-            explanation_text = "@ScienceInMotion"  # Match the reference style
-            explanation.set_text(explanation_text)
-            explanation.set_alpha(fade_out)
             
             # Gradually uncollapse and slow down
             uncollapse_progress = min(1.0, (progress - 0.9) / 0.05)
@@ -712,8 +618,8 @@ def create_wave_function_collapse_animation(output_dir="output"):
             bg_particles.set_offsets(np.empty((0, 2)))
             bg_particles.set_array(np.array([]))
         
-        # Return updated artists including explanation
-        return wave_line, glow_line, prob_fill, particles, bg_particles, title, subtitle, measurement_text, equation, explanation, watermark
+        # Return updated artists - removed explanation text
+        return wave_line, glow_line, prob_fill, particles, bg_particles, title, measurement_text, equation, watermark
     
     # Create the animation
     print(f"Creating animation with {frames} frames at {fps} fps...")
