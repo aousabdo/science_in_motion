@@ -21,6 +21,7 @@ from src.simulations.mandelbrot_zoom import create_mandelbrot_zoom_animation
 from src.simulations.wave_function_collapse import create_wave_function_collapse_animation
 from src.simulations.fourier_series import create_fourier_visualization
 from src.simulations.trig_challenge import create_trig_challenge_animation
+from src.simulations.sine_circle_trace import create_sine_circle_trace_animation
 
 def main():
     parser = argparse.ArgumentParser(description='Generate animations for Science in Motion TikTok channel')
@@ -32,6 +33,7 @@ def main():
     parser.add_argument('--quantum', action='store_true', help='Generate wave function collapse animation')
     parser.add_argument('--fourier', action='store_true', help='Generate Fourier series visualization')
     parser.add_argument('--trig', action='store_true', help='Generate trigonometry challenge animation')
+    parser.add_argument('--sine', action='store_true', help='Generate sine wave from circle animation')
     parser.add_argument('--all', action='store_true', help='Generate all animations')
     
     # Output directory
@@ -43,7 +45,8 @@ def main():
     args = parser.parse_args()
     
     # If no arguments provided, show help
-    if not any([args.pendulum, args.lorenz, args.mandelbrot, args.quantum, args.fourier, args.trig, args.all]):
+    if not any([args.pendulum, args.lorenz, args.mandelbrot, args.quantum, 
+                args.fourier, args.trig, args.sine, args.all]):
         parser.print_help()
         return
     
@@ -74,6 +77,10 @@ def main():
     if args.all or args.trig:
         print("\n=== Generating Trigonometry Challenge Animation ===")
         create_trig_challenge_animation(args.output)
+        
+    if args.all or args.sine:
+        print("\n=== Generating Sine Wave from Circle Animation ===")
+        create_sine_circle_trace_animation(args.output)
         
     print("\nAll requested animations have been generated in the", args.output, "directory.")
 
