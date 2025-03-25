@@ -25,15 +25,15 @@ def create_sine_circle_trace_animation(output_dir="output"):
     fig = plt.figure(figsize=(6, 10.67), facecolor='black')
     ax = fig.add_subplot(111)
     
-    # Configure axes
+    # Configure axes - reduce negative x-axis range and set positive limit to 4π
     ax.set_facecolor('black')
-    ax.set_xlim(-6, 6)
+    ax.set_xlim(-2, 4*np.pi)
     ax.set_ylim(-3, 3)
     ax.set_aspect('equal')
     ax.axis('off')
     
-    # Create circle
-    circle = Circle((0, 0), 1, fill=False, color='white', lw=1.5)
+    # Create circle - position it near the left side of the plot
+    circle = Circle((-1, 0), 1, fill=False, color='white', lw=1.5)
     ax.add_patch(circle)
     
     # Create horizontal and vertical axes
@@ -62,15 +62,15 @@ def create_sine_circle_trace_animation(output_dir="output"):
     point_on_sine, = ax.plot([], [], 'o', color='#FF00FF', ms=8)
     
     # Add title
-    title = ax.text(0, 2.7, "How a Sine Wave is Generated", 
+    title = ax.text(2*np.pi, 2.7, "How a Sine Wave is Generated", 
                     fontsize=18, color='white', ha='center', fontname='DejaVu Serif')
     
     # Add subtitle
-    subtitle = ax.text(0, 2.3, "From Circular Motion", 
+    subtitle = ax.text(2*np.pi, 2.3, "From Circular Motion", 
                       fontsize=14, color='white', ha='center', fontname='DejaVu Serif')
     
     # Add watermark
-    watermark = ax.text(0, -2.7, "@ScienceInMotion", 
+    watermark = ax.text(2*np.pi, -2.7, "@Science_InMotion", 
                        fontsize=14, color='#FF00FF', ha='center', alpha=0.7)
     
     # Create data arrays
@@ -92,7 +92,7 @@ def create_sine_circle_trace_animation(output_dir="output"):
         t = 2 * np.pi * frame / frames
         
         # Calculate position on circle
-        x = np.cos(t)
+        x = -1 + np.cos(t)  # -1 is the x-center of circle
         y = np.sin(t)
         
         # Update point on circle
