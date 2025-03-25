@@ -22,6 +22,7 @@ from src.simulations.wave_function_collapse import create_wave_function_collapse
 from src.simulations.fourier_series import create_fourier_visualization
 from src.simulations.trig_challenge import create_trig_challenge_animation
 from src.simulations.sine_circle_trace import create_sine_circle_trace_animation
+from src.simulations.sine_cosine_circle_trace import create_sine_cosine_circle_trace_animation
 
 def main():
     parser = argparse.ArgumentParser(description='Generate animations for Science in Motion TikTok channel')
@@ -35,7 +36,7 @@ def main():
     parser.add_argument('--trig', action='store_true', help='Generate trigonometry challenge animation')
     parser.add_argument('--sine', action='store_true', help='Generate sine wave from circle animation')
     parser.add_argument('--all', action='store_true', help='Generate all animations')
-    
+    parser.add_argument('--sine_cosine', action='store_true', help='Generate sine and cosine circle trace animation')
     # Output directory
     parser.add_argument('--output', type=str, default='output', help='Output directory for animations')
     
@@ -81,6 +82,10 @@ def main():
     if args.all or args.sine:
         print("\n=== Generating Sine Wave from Circle Animation ===")
         create_sine_circle_trace_animation(args.output)
+        
+    if args.all or args.sine_cosine:
+        print("\n=== Generating Sine and Cosine Circle Trace Animation ===")
+        create_sine_cosine_circle_trace_animation(args.output)
         
     print("\nAll requested animations have been generated in the", args.output, "directory.")
 

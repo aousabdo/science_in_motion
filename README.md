@@ -1,98 +1,100 @@
-# Science in Motion
+# Trigonometry Challenges for TikTok
 
-A collection of physics simulations and visualizations optimized for TikTok. This repository contains Python scripts that generate mesmerizing animations of various physical phenomena.
+This project contains Python animations for creating engaging trigonometry challenges suitable for TikTok videos. The challenges present mathematical problems in a visually appealing way with vibrant colors and animations.
 
-## Repository Structure
+## Features
 
-```
-science_in_motion/
-├── src/                  # Source code
-│   └── simulations/      # Simulation modules
-│       ├── double_pendulum.py
-│       ├── lorenz_attractor.py
-│       └── mandelbrot_zoom.py
-├── examples/             # Example usage scripts
-│   └── generate_animations.py
-├── output/               # Generated animations (not tracked in git)
-├── requirements.txt      # Python dependencies
-└── README.md             # This file
-```
-
-## Current Visualizations
-
-### Double Pendulum
-The double pendulum script (`src/simulations/double_pendulum.py`) simulates the chaotic motion of a double pendulum system. It creates a visually striking animation with the following features:
-- Portrait mode (9:16 aspect ratio) optimized for TikTok
-- Dark background with high-contrast elements
-- Trace of the pendulum's path
-- Full 30 seconds of mesmerizing chaotic motion
-
-### Lorenz Attractor
-The Lorenz attractor script (`src/simulations/lorenz_attractor.py`) visualizes the famous Lorenz system, a set of differential equations known for exhibiting chaotic behavior. Features include:
-- 3D visualization with animated camera perspective
-- Color gradients that change over time
-- Mathematical equations displayed
-- TikTok-optimized portrait format
-
-### Mandelbrot Zoom
-The Mandelbrot zoom script (`src/simulations/mandelbrot_zoom.py`) creates a hypnotic deep zoom into the Mandelbrot fractal. Features include:
-- Smooth exponential zoom into a beautiful spiral pattern
-- Vibrant color palette that highlights fractal details
-- Dynamic text overlays with mathematical information
-- Zoom counter showing the incredible magnification levels
-- TikTok-optimized portrait format
+- **Basic Trigonometry Challenge**: Mountain climbing scenario with angles and distances to calculate
+- **Advanced Trigonometry Challenge**: Lighthouse and ships with angles and distances that require the Law of Cosines
+- Smooth animations with eye-catching effects
+- TikTok-friendly vertical (9:16) format
+- Vibrant color schemes
+- Pulsing effects and gradual reveals to maintain viewer interest
 
 ## Requirements
 
-All required packages are listed in the `requirements.txt` file. You can install them using:
+- Python 3.7+
+- matplotlib
+- numpy
+- ffmpeg (optional, for MP4 output)
 
+## Installation
+
+1. Clone this repository:
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/yourusername/trig-challenges.git
+cd trig-challenges
 ```
+
+2. Install the required packages:
+```bash
+pip install matplotlib numpy
+```
+
+3. (Optional) Install ffmpeg for MP4 output:
+   - **Ubuntu/Debian**: `sudo apt-get install ffmpeg`
+   - **macOS**: `brew install ffmpeg`
+   - **Windows**: Download from [ffmpeg.org](https://ffmpeg.org/download.html) and add to PATH
 
 ## Usage
 
-### Quick Start
-The simplest way to generate all animations is to run the example script:
+Run the main script to generate both challenges:
 
 ```bash
-python examples/generate_animations.py
+python src/simulations/run_trig_challenges.py
 ```
 
-This will create all animations and save them in the `output` directory.
+### Options
 
-### Generate Specific Animations
-You can also choose to generate specific animations using command line arguments:
-
+- Generate only the basic challenge:
 ```bash
-# Generate only the Mandelbrot zoom animation
-python examples/generate_animations.py --mandelbrot
-
-# Generate the Lorenz and double pendulum animations
-python examples/generate_animations.py --lorenz --pendulum
-
-# Generate all animations with custom output directory
-python examples/generate_animations.py --all --output my_animations
+python src/simulations/run_trig_challenges.py --challenges basic
 ```
 
-### Individual Simulations
-You can also import and use the simulation functions directly in your code:
-
-```python
-from src.simulations.double_pendulum import create_double_pendulum_animation
-from src.simulations.lorenz_attractor import create_lorenz_animation
-from src.simulations.mandelbrot_zoom import create_mandelbrot_animation
-
-# Generate animations
-create_double_pendulum_animation()
-create_lorenz_animation()
-create_mandelbrot_animation()
+- Generate only the advanced challenge:
+```bash
+python src/simulations/run_trig_challenges.py --challenges advanced
 ```
 
-## About Science in Motion
+- Specify a custom output directory:
+```bash
+python src/simulations/run_trig_challenges.py --output-dir my_animations
+```
 
-Science in Motion is a TikTok channel dedicated to creating engaging and visually stunning physics and mathematics visualizations. Follow us for more amazing science content!
+## Challenge Solutions
+
+### Basic Mountain Challenge
+The challenge provides:
+- Distance from base to observer: 10m
+- Angle from observer to peak: 32°
+- Distance from base to peak: 62m
+
+To solve, you need to find the height of the mountain peak above the base station using trigonometry.
+
+### Advanced Lighthouse Challenge
+The challenge provides:
+- Angles from lighthouse to two ships: 28° and 42°
+- Distances from lighthouse to ships: 53m and 32m
+
+To solve, you need to find the distance between the two ships using the Law of Cosines.
+
+## Customization
+
+You can modify the challenges by editing the source files:
+- `src/simulations/trigonometry_challenge.py`
+- `src/simulations/advanced_trig_challenge.py`
+
+You can change:
+- Colors
+- Animation timing
+- Problem difficulty
+- Text and questions
+- Dimensions and angles
 
 ## License
 
-MIT 
+[MIT License](LICENSE)
+
+## Credits
+
+Created by @Science_In_Motion for educational content on TikTok 

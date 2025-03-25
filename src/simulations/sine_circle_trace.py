@@ -17,8 +17,8 @@ def create_sine_circle_trace_animation(output_dir="output"):
     print("Creating Sine Circle Trace Animation...")
     
     # Animation parameters
-    fps = 30
-    duration = 15  # 15 seconds total
+    fps = 60
+    duration = 15  # 30 seconds total
     frames = fps * duration
     
     # Set up figure (9:16 aspect ratio for TikTok)
@@ -27,51 +27,51 @@ def create_sine_circle_trace_animation(output_dir="output"):
     
     # Configure axes - reduce negative x-axis range and set positive limit to 4π
     ax.set_facecolor('black')
-    ax.set_xlim(-2, 4*np.pi)
+    ax.set_xlim(-2.3, 4*np.pi)
     ax.set_ylim(-3, 3)
     ax.set_aspect('equal')
     ax.axis('off')
     
     # Create circle - position it near the left side of the plot
-    circle = Circle((-1, 0), 1, fill=False, color='white', lw=1.5)
+    circle = Circle((-1, 0), 1, fill=False, color='#00FFFF', lw=2)
     ax.add_patch(circle)
     
     # Create horizontal and vertical axes
-    ax.axhline(y=0, color='gray', linestyle='-', alpha=0.7, lw=1)
-    ax.axvline(x=0, color='gray', linestyle='-', alpha=0.7, lw=1)
+    ax.axhline(y=0, color='gray', linestyle='-', alpha=0.5, lw=1)
+    ax.axvline(x=0, color='gray', linestyle='-', alpha=0.5, lw=1)
     
     # X-axis markings (π, 2π, 3π, 4π)
     for i, label in enumerate(['π', '2π', '3π', '4π']):
         x = (i + 1) * np.pi
         ax.plot([x, x], [-0.1, 0.1], 'gray', lw=1)
-        ax.text(x, -0.3, label, color='white', ha='center', fontsize=12)
+        ax.text(x, -0.9, label, color='white', ha='center', fontsize=12)
     
     # Create point on circle
-    point_on_circle, = ax.plot([], [], 'o', color='cyan', ms=8)
+    point_on_circle, = ax.plot([], [], 'o', color='#00FFFF', ms=10)
     
     # Create horizontal line from point to axis
-    horizontal_line, = ax.plot([], [], '--', color='cyan', alpha=0.5, lw=1)
+    horizontal_line, = ax.plot([], [], '--', color='#00FFFF', alpha=0.5, lw=1)
     
     # Create line connecting point to right side
-    connecting_line, = ax.plot([], [], '--', color='cyan', alpha=0.5, lw=1)
+    connecting_line, = ax.plot([], [], '--', color='#00FFFF', alpha=0.5, lw=1)
     
     # Create sine wave
-    sine_wave, = ax.plot([], [], '-', color='cyan', lw=2)
+    sine_wave, = ax.plot([], [], '-', color='#00FFFF', lw=2.5)
     
     # Create point on sine wave
-    point_on_sine, = ax.plot([], [], 'o', color='#FF00FF', ms=8)
+    point_on_sine, = ax.plot([], [], 'o', color='#FF00FF', ms=10)
     
-    # Add title
-    title = ax.text(2*np.pi, 2.7, "How a Sine Wave is Generated", 
-                    fontsize=18, color='white', ha='center', fontname='DejaVu Serif')
+    # Add title - more eye-catching and concise
+    title = ax.text(2*np.pi, 3.8, "CIRCLES → WAVES", 
+                    fontsize=22, color='#FFFFFF', ha='center', fontname='DejaVu Sans',
+                    weight='bold')
     
-    # Add subtitle
-    subtitle = ax.text(2*np.pi, 2.3, "From Circular Motion", 
-                      fontsize=14, color='white', ha='center', fontname='DejaVu Serif')
+    # No subtitle, cleaner look
     
-    # Add watermark
-    watermark = ax.text(2*np.pi, -2.7, "@Science_InMotion", 
-                       fontsize=14, color='#FF00FF', ha='center', alpha=0.7)
+    # Add watermark - more stylish
+    watermark = ax.text(2*np.pi, -3.8, "@Science_In_Motion", 
+                       fontsize=14, color='#FF00FF', ha='center', alpha=0.9,
+                       style='italic', weight='bold')
     
     # Create data arrays
     t_points = np.linspace(0, 0, 1000)
@@ -85,11 +85,11 @@ def create_sine_circle_trace_animation(output_dir="output"):
         connecting_line.set_data([], [])
         point_on_sine.set_data([], [])
         return (point_on_circle, horizontal_line, sine_wave, 
-                connecting_line, point_on_sine, title, subtitle, watermark)
+                connecting_line, point_on_sine, title, watermark)
     
     def update(frame):
         """Update animation for each frame"""
-        t = 2 * np.pi * frame / frames
+        t = 4 * np.pi * frame / frames
         
         # Calculate position on circle
         x = -1 + np.cos(t)  # -1 is the x-center of circle
@@ -105,7 +105,7 @@ def create_sine_circle_trace_animation(output_dir="output"):
         connecting_line.set_data([0, t], [y, y])
         
         # Update sine wave
-        max_t = max(2 * np.pi, t)
+        max_t = max(4 * np.pi, t)
         t_points = np.linspace(0, max_t, 1000)
         mask = t_points <= t
         sine_points = np.sin(t_points)
@@ -115,7 +115,7 @@ def create_sine_circle_trace_animation(output_dir="output"):
         point_on_sine.set_data([t], [y])
         
         return (point_on_circle, horizontal_line, sine_wave, 
-                connecting_line, point_on_sine, title, subtitle, watermark)
+                connecting_line, point_on_sine, title, watermark)
     
     # Create animation
     ani = animation.FuncAnimation(
